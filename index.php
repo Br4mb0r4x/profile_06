@@ -102,6 +102,10 @@ $interests = $db->query("SELECT * FROM interests ORDER BY id ASC")->fetchAll(PDO
 </form>
 
 <h3>Seznam zájmů</h3>
+
+<?php if (count($interests) === 0): ?>
+    <p>Zatím žádný zájem nebyl přidán.</p>
+<?php else: ?>
 <ul>
 <?php foreach ($interests as $interest): ?>
     <li>
@@ -121,6 +125,7 @@ $interests = $db->query("SELECT * FROM interests ORDER BY id ASC")->fetchAll(PDO
     </li>
 <?php endforeach; ?>
 </ul>
+<?php endif; ?>
 
 </div>
 </body>
