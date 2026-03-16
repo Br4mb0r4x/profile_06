@@ -4,9 +4,7 @@ require 'init.php';
 $message = '';
 $messageClass = '';
 
-// --------------------
-// PŘIDÁNÍ ZÁJMU
-// --------------------
+// Přidání zájmu
 if (isset($_POST['add'])) {
     $name = trim($_POST['name']);
 
@@ -29,9 +27,7 @@ if (isset($_POST['add'])) {
     }
 }
 
-// --------------------
-// MAZÁNÍ
-// --------------------
+// Mazání
 if (isset($_GET['delete'])) {
     $stmt = $db->prepare("DELETE FROM interests WHERE id = ?");
     $stmt->execute([$_GET['delete']]);
@@ -39,14 +35,12 @@ if (isset($_GET['delete'])) {
     $messageClass = 'success';
 }
 
-// --------------------
-// EDITACE
-// --------------------
+// Editace
 if (isset($_POST['update'])) {
     $id = $_POST['id'];
     $newName = trim($_POST['name']);
 
-    // Načteme původní název
+
     $stmt = $db->prepare("SELECT name FROM interests WHERE id = ?");
     $stmt->execute([$id]);
     $originalName = $stmt->fetchColumn();
@@ -73,9 +67,7 @@ if (isset($_POST['update'])) {
     }
 }
 
-// --------------------
-// NAČTENÍ SEZNAMU ZÁJMŮ
-// --------------------
+// Načtení seznamu zájmů
 $interests = $db->query("SELECT * FROM interests ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -85,6 +77,21 @@ $interests = $db->query("SELECT * FROM interests ORDER BY id ASC")->fetchAll(PDO
 <meta charset="UTF-8">
 <title>Zájmy</title>
 <link rel="stylesheet" href="style.css">
+<style>
+/* Malá úprava pro inline editaci */
+input.edit-input {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 6px 10px;
+    width: 150px;
+}
+button.save-btn {
+    background-color: #16a34a; /* zelená pro uložit */
+}
+button.edit-btn {
+    background-color: #1d4ed8; /* modrá pro upravit */
+}
+</style>
 </head>
 <body>
 
@@ -116,10 +123,11 @@ $interests = $db->query("SELECT * FROM interests ORDER BY id ASC")->fetchAll(PDO
                 <button type="button" style="background:#dc2626;">Smazat</button>
             </a>
 
-            <form method="POST" style="display:inline;">
+            <form method="POST" style="display:inline;" class="edit-form">
                 <input type="hidden" name="id" value="<?= $interest['id'] ?>">
-                <input type="text" name="name" value="<?= htmlspecialchars($interest['name']) ?>">
-                <button type="submit" name="update">Upravit</button>
+                <input type="text" name="name" value="<?= htmlspecialchars($interest['name']) ?>" class="edit-input" readonly>
+                <button type="button" class="edit-btn">Upravit</button>
+                <button type="submit" name="update" class="save-btn" style="display:none;">Uložit</button>
             </form>
         </div>
     </li>
@@ -128,5 +136,22 @@ $interests = $db->query("SELECT * FROM interests ORDER BY id ASC")->fetchAll(PDO
 <?php endif; ?>
 
 </div>
+
+<script>
+// JavaScript pro odemčení editace
+document.querySelectorAll('.edit-form').forEach(form => {
+    const editBtn = form.querySelector('.edit-btn');
+    const saveBtn = form.querySelector('.save-btn');
+    const input = form.querySelector('.edit-input');
+
+    editBtn.addEventListener('click', () => {
+        input.removeAttribute('readonly');       // odemknout input
+        input.focus();
+        editBtn.style.display = 'none';         // skrýt tlačítko "Upravit"
+        saveBtn.style.display = 'inline-block'; // zobrazit tlačítko "Uložit"
+    });
+});
+</script>
+
 </body>
 </html>
