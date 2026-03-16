@@ -1,88 +1,83 @@
-/* Reset */
-* {
+/* style.css */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f9;
+    color: #333;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: "Segoe UI", Arial, sans-serif;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .container {
-    background: white;
-    padding: 40px;
+    max-width: 700px;
+    margin: 50px auto;
+    background: #fff;
+    padding: 30px;
     border-radius: 12px;
-    width: 500px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 h2, h3 {
-    margin-bottom: 15px;
-    color: #333;
+    color: #1d4ed8;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
+input[type="text"] {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 200px;
+}
+
+button {
+    padding: 8px 14px;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    background-color: #1d4ed8;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background-color: #2563eb;
 }
 
 ul {
     list-style: none;
-    margin-bottom: 25px;
+    padding: 0;
 }
 
 li {
-    background: #f5f6fa;
-    padding: 10px 15px;
+    background: #f0f4ff;
     margin-bottom: 10px;
+    padding: 10px 15px;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-form {
+li form {
     display: inline;
 }
 
-input[type="text"] {
-    padding: 8px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    margin-right: 5px;
+.message {
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
 }
 
-button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 6px;
-    background: #667eea;
-    color: white;
-    cursor: pointer;
-    transition: 0.2s;
+.success {
+    background-color: #d1fae5;
+    color: #065f46;
 }
 
-button:hover {
-    background: #5563d1;
-}
-
-a {
-    text-decoration: none;
-    color: white;
-    background: #e74c3c;
-    padding: 6px 10px;
-    border-radius: 6px;
-    margin-left: 5px;
-    transition: 0.2s;
-}
-
-a:hover {
-    background: #c0392b;
-}
-
-hr {
-    margin: 20px 0;
-    border: none;
-    border-top: 1px solid #eee;
+.error {
+    background-color: #fee2e2;
+    color: #991b1b;
 }

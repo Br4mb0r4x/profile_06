@@ -1,86 +1,111 @@
 <?php
+require 'init.php';
 
-$db = new PDO("sqlite:profile.db");
-$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$message = '';
+$messageClass = '';
 
-# Přidání zájmu
-if(isset($_POST['add'])){
-
+// Přidání zájmu
+if (isset($_POST['add'])) {
     $name = trim($_POST['name']);
 
-    if($name != ""){
+    if ($name === '') {
+        $message = "Pole nesmí být prázdné.";
+        $messageClass = 'error';
+    } else {
+        $stmt = $db->prepare("SELECT COUNT(*) FROM interests WHERE LOWER(name) = LOWER(?)");
+        $stmt->execute([$name]);
 
-        $check = $db->prepare("SELECT COUNT(*) FROM interests WHERE name = ?");
-        $check->execute([$name]);
-
-        if($check->fetchColumn() == 0){
+        if ($stmt->fetchColumn() > 0) {
+            $message = "Tento zájem už existuje.";
+            $messageClass = 'error';
+        } else {
             $stmt = $db->prepare("INSERT INTO interests (name) VALUES (?)");
             $stmt->execute([$name]);
+            $message = "Zájem byl přidán.";
+            $messageClass = 'success';
         }
-        else{
-            echo "Zájem už existuje.<br>";
-        }
-
-    } else {
-        echo "Pole nesmí být prázdné.<br>";
     }
 }
 
-# Mazání
-if(isset($_GET['delete'])){
+// Mazání
+if (isset($_GET['delete'])) {
     $stmt = $db->prepare("DELETE FROM interests WHERE id = ?");
     $stmt->execute([$_GET['delete']]);
+    $message = "Zájem byl smazán.";
+    $messageClass = 'success';
 }
 
-# Editace
-if(isset($_POST['update'])){
-    $stmt = $db->prepare("UPDATE interests SET name = ? WHERE id = ?");
-    $stmt->execute([$_POST['name'], $_POST['id']]);
+// Editace
+if (isset($_POST['update'])) {
+    $id = $_POST['id'];
+    $newName = trim($_POST['name']);
+
+    if ($newName === '') {
+        $message = "Nová hodnota nesmí být prázdná.";
+        $messageClass = 'error';
+    } else {
+        $stmt = $db->prepare("SELECT COUNT(*) FROM interests WHERE LOWER(name) = LOWER(?) AND id != ?");
+        $stmt->execute([$newName, $id]);
+
+        if ($stmt->fetchColumn() > 0) {
+            $message = "Takový zájem už existuje.";
+            $messageClass = 'error';
+        } else {
+            $stmt = $db->prepare("UPDATE interests SET name = ? WHERE id = ?");
+            $stmt->execute([$newName, $id]);
+            $message = "Zájem byl upraven.";
+            $messageClass = 'success';
+        }
+    }
 }
 
+// Načtení zájmů
+$interests = $db->query("SELECT * FROM interests ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<h2>Zájmy</h2>
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<title>Zájmy</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<ul>
+<div class="container">
+<h2>Správa zájmů</h2>
 
-<?php
+<?php if ($message): ?>
+    <div class="message <?= $messageClass ?>"><?= htmlspecialchars($message) ?></div>
+<?php endif; ?>
 
-$stmt = $db->query("SELECT * FROM interests");
-
-foreach($stmt as $row){
-
-echo "<li>";
-
-echo $row['name'];
-
-echo " <a href='?delete=".$row['id']."'>Smazat</a>";
-
-?>
-
-<form method="post" style="display:inline;">
-<input type="hidden" name="id" value="<?= $row['id'] ?>">
-<input type="text" name="name">
-<button name="update">Upravit</button>
+<h3>Přidat nový zájem</h3>
+<form method="POST">
+    <input type="text" name="name" required>
+    <button type="submit" name="add">Přidat</button>
 </form>
 
-<?php
+<h3>Seznam zájmů</h3>
+<ul>
+<?php foreach ($interests as $interest): ?>
+    <li>
+        <span><?= htmlspecialchars($interest['name']) ?></span>
 
-echo "</li>";
+        <div>
+            <a href="?delete=<?= $interest['id'] ?>" onclick="return confirm('Opravdu smazat tento zájem?');">
+                <button type="button" style="background:#dc2626;">Smazat</button>
+            </a>
 
-}
-
-?>
-
+            <form method="POST" style="display:inline;">
+                <input type="hidden" name="id" value="<?= $interest['id'] ?>">
+                <input type="text" name="name" value="<?= htmlspecialchars($interest['name']) ?>">
+                <button type="submit" name="update">Upravit</button>
+            </form>
+        </div>
+    </li>
+<?php endforeach; ?>
 </ul>
 
-<hr>
-
-<h3>Přidat zájem</h3>
-
-<form method="post">
-
-<input type="text" name="name">
-<button name="add">Přidat</button>
-
-</form>
+</div>
+</body>
+</html>
