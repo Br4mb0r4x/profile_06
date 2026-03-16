@@ -4,7 +4,9 @@ require 'init.php';
 $message = '';
 $messageClass = '';
 
-// Přidání zájmu
+// --------------------
+// PŘIDÁNÍ ZÁJMU
+// --------------------
 if (isset($_POST['add'])) {
     $name = trim($_POST['name']);
 
@@ -16,7 +18,7 @@ if (isset($_POST['add'])) {
         $stmt->execute([$name]);
 
         if ($stmt->fetchColumn() > 0) {
-            $message = "Tento zájem už existuje.";
+            $message = "Zájem už existuje.";
             $messageClass = 'error';
         } else {
             $stmt = $db->prepare("INSERT INTO interests (name) VALUES (?)");
@@ -27,7 +29,9 @@ if (isset($_POST['add'])) {
     }
 }
 
-// Mazání
+// --------------------
+// MAZÁNÍ
+// --------------------
 if (isset($_GET['delete'])) {
     $stmt = $db->prepare("DELETE FROM interests WHERE id = ?");
     $stmt->execute([$_GET['delete']]);
@@ -35,12 +39,22 @@ if (isset($_GET['delete'])) {
     $messageClass = 'success';
 }
 
-// Editace
+// --------------------
+// EDITACE
+// --------------------
 if (isset($_POST['update'])) {
     $id = $_POST['id'];
     $newName = trim($_POST['name']);
 
-    if ($newName === '') {
+    // Načteme původní název
+    $stmt = $db->prepare("SELECT name FROM interests WHERE id = ?");
+    $stmt->execute([$id]);
+    $originalName = $stmt->fetchColumn();
+
+    if ($newName === $originalName) {
+        $message = "Zájem je stejný.";
+        $messageClass = 'error';
+    } elseif ($newName === '') {
         $message = "Nová hodnota nesmí být prázdná.";
         $messageClass = 'error';
     } else {
@@ -59,7 +73,9 @@ if (isset($_POST['update'])) {
     }
 }
 
-// Načtení zájmů
+// --------------------
+// NAČTENÍ SEZNAMU ZÁJMŮ
+// --------------------
 $interests = $db->query("SELECT * FROM interests ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
